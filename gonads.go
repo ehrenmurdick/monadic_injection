@@ -20,17 +20,19 @@ type maybe struct {
 type item struct {
 	title string
 	done  bool
+	url   string
 }
 
-func newItem(s string) (i item) {
+func newItem(s string, u string) (i item) {
 	return item{
 		title: s,
 		done:  false,
+		url:   u,
 	}
 }
 
 func (i item) stringify() string {
-	return fmt.Sprintf("{item title=\"%s\"  done=%+v}", i.title, i.done)
+	return fmt.Sprintf("{item title=\"%s\"  done=%+v url=%s}", i.title, i.done, i.url)
 }
 
 func fromValue(v V) maybe {
@@ -65,8 +67,8 @@ var itemId int = 0
 
 func fetch(url V) (m maybe) {
 	itemId++
-	if _, ok := url.(string); ok {
-		m.value = newItem(fmt.Sprintf("item %d", itemId))
+	if s, ok := url.(string); ok {
+		m.value = newItem(fmt.Sprintf("item %d", itemId), s)
 	} else {
 		m.err = errors.New(fmt.Sprintf("couldn't fetch non-string url: %+v", url))
 	}
