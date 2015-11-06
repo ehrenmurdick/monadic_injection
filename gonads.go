@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
@@ -8,7 +9,7 @@ import (
 // primitives
 
 type database struct {
-	dburl string
+	url string
 }
 
 // inits
@@ -66,10 +67,30 @@ func (in maybeString) andThenDatabase(bl func(string) maybeDatabase) maybeDataba
 	}
 }
 
+func (in maybeDatabase) handle(bl func(error) error) maybeDatabase {
+	if in.err != nil {
+		bl(in.err)
+	}
+	return in
+}
+
 // functors
 func getEnv(key string) maybeString {
 	return maybeString{
 		value: os.Getenv(key),
+	}
+}
+
+func getDB(url string) maybeDatabase {
+	var err error
+	if false {
+		err = errors.New("could not connect to db")
+	}
+	return maybeDatabase{
+		value: database{
+			url: url,
+		},
+		err: err,
 	}
 }
 
@@ -87,6 +108,6 @@ func printErr(err error) error {
 // main
 func main() {
 	getEnv("DB").
-		within(printStr).
+		andThenDatabase(getDB).
 		handle(printErr)
 }
