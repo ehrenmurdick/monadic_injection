@@ -3,22 +3,22 @@ package repos
 import "../ent"
 import "errors"
 
-type Item interface {
+type ItemRepo interface {
 	Get(int) ent.MaybeItem
 	Save(int, ent.Item) ent.MaybeItem
 }
 
-func NewItem() Item {
-	return item{
+func NewItemRepo() ItemRepo {
+	return itemRepo{
 		items: make(map[int]ent.Item),
 	}
 }
 
-type item struct {
+type itemRepo struct {
 	items map[int]ent.Item
 }
 
-func (repo item) Get(key int) (out ent.MaybeItem) {
+func (repo itemRepo) Get(key int) (out ent.MaybeItem) {
 	if value, ok := repo.items[key]; ok {
 		out.Value = value
 	} else {
@@ -27,7 +27,7 @@ func (repo item) Get(key int) (out ent.MaybeItem) {
 	return
 }
 
-func (repo item) Save(key int, value ent.Item) (out ent.MaybeItem) {
+func (repo itemRepo) Save(key int, value ent.Item) (out ent.MaybeItem) {
 	out.Value = value
 	repo.items[key] = value
 	return

@@ -4,7 +4,7 @@ import "./repos"
 import "./ent"
 import "./io"
 
-var repo = repos.NewItem()
+var repo = repos.NewItemRepo()
 
 func main() {
 	var i = ent.Item{
