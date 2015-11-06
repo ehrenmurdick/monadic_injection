@@ -26,5 +26,10 @@ func main() {
 		Get(100).
 		GetTitle().
 		Within(io.PrintStr).
+		// handler function is of type
+		// func(error) error.
+		// In a web handler, you'd
+		// write a handler function that
+		// returns 404 for example.
 		Handle(io.PrintErr)
 }
