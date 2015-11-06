@@ -1,107 +1,92 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 )
 
-type V interface{}
+// primitives
 
-type printable interface {
-	stringify() string
+type database struct {
+	dburl string
 }
 
-type maybe struct {
+// inits
+func fromString(str string) maybeString {
+	return maybeString{
+		value: str,
+	}
+}
+
+// monads
+type maybeDatabase struct {
+	value database
 	err   error
-	value V
 }
 
-type item struct {
-	title string
-	done  bool
-	url   string
+type maybeString struct {
+	value string
+	err   error
 }
 
-func newItem(s string, u string) (i item) {
-	return item{
-		title: s,
-		done:  false,
-		url:   u,
-	}
-}
-
-func (i item) stringify() string {
-	return fmt.Sprintf("{item title=\"%s\"  done=%+v url=%s}", i.title, i.done, i.url)
-}
-
-func fromValue(v V) maybe {
-	return maybe{
-		value: v,
-	}
-}
-
-func (m maybe) andThen(bl func(V) maybe) maybe {
-	if m.err != nil {
-		return m
+// operations
+func (in maybeString) andThen(bl func(string) maybeString) maybeString {
+	if in.err == nil {
+		return bl(in.value)
 	} else {
-		return bl(m.value)
+		return in
 	}
 }
 
-func (m maybe) handle(bl func(error) maybe) maybe {
-	if m.err != nil {
-		return bl(m.err)
+func (in maybeString) within(bl func(string) error) maybeString {
+	if in.err == nil {
+		return maybeString{
+			value: in.value,
+			err:   bl(in.value),
+		}
 	} else {
-		return m
+		return in
 	}
 }
 
-func getUrl(key V) maybe {
-	return maybe{
-		value: os.Getenv(key.(string)),
+func (in maybeString) handle(bl func(error) error) maybeString {
+	if in.err != nil {
+		bl(in.err)
 	}
+	return in
 }
 
-var itemId int = 0
-
-func fetch(url V) (m maybe) {
-	itemId++
-	if s, ok := url.(string); ok {
-		m.value = newItem(fmt.Sprintf("item %d", itemId), s)
+func (in maybeString) andThenDatabase(bl func(string) maybeDatabase) maybeDatabase {
+	if in.err == nil {
+		return bl(in.value)
 	} else {
-		m.err = errors.New(fmt.Sprintf("couldn't fetch non-string url: %+v", url))
+		return maybeDatabase{
+			err: in.err,
+		}
 	}
+}
+
+// functors
+func getEnv(key string) maybeString {
+	return maybeString{
+		value: os.Getenv(key),
+	}
+}
+
+// side effects
+func printStr(str string) (err error) {
+	_, err = fmt.Println(str)
 	return
 }
 
-func pr(response V) (m maybe) {
-	m.value = response
-	if s, ok := response.(string); ok {
-		println(s)
-	} else if i, ok := response.(item); ok {
-		println(i.stringify())
-	} else {
-		m.err = errors.New("couln't print non-printable thing")
-	}
-	return
+func printErr(err error) error {
+	_, err = fmt.Println(err.Error())
+	return err
 }
 
-func raise(err error) maybe {
-	panic(err.Error())
-	return maybe{
-		err: err,
-	}
-}
-
+// main
 func main() {
-	getUrl("HOST").
-		andThen(fetch).
-		andThen(pr).
-		handle(raise)
-
-	getUrl("path").
-		andThen(fetch).
-		andThen(pr).
-		handle(raise)
+	getEnv("DB").
+		within(printStr).
+		handle(printErr)
 }
