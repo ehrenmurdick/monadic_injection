@@ -9,11 +9,6 @@ import (
 	"./repos"
 )
 
-func panicErr(err error) error {
-	panic(err.Error())
-	return err
-}
-
 // initialize a monadic repo.
 // failure to open can be handled
 // here by adding:
@@ -56,6 +51,17 @@ func writeError(w http.ResponseWriter) func(error) error {
 	}
 }
 
+func logError(err error) error {
+	fmt.Println(err.Error())
+	return err
+}
+
+// Error handler that just panics!
+func panicErr(err error) error {
+	panic(err.Error())
+	return err
+}
+
 // GET /:key
 // renders item's title
 func show(w http.ResponseWriter, r *http.Request) {
@@ -69,7 +75,8 @@ func show(w http.ResponseWriter, r *http.Request) {
 		// an entity to json, for example.
 		GetTitle().
 		Within(writeResponse(w)).
-		Handle(writeError(w))
+		Handle(writeError(w)).
+		Handle(logError)
 }
 
 func main() {

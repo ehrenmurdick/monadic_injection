@@ -31,6 +31,9 @@ func (in MaybeItem) AndThenString(bl func(Item) string) (out MaybeString) {
 	return
 }
 
+// Convenience method, a quick functor
+// for MaybeItem -> MaybeString where
+// the string is the item's title.
 func (in MaybeItem) GetTitle() (out MaybeString) {
 	return in.AndThenString(Item.GetTitle)
 }
