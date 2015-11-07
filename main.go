@@ -35,7 +35,8 @@ var repo = repos.
 // make the maybeRepo re-try getting a good repo
 // per request, like what you see with Rails
 
-// callback factory
+// "return" monad operation callback
+// (with the correct response writer closed in)
 func writeResponse(w http.ResponseWriter) func(string) error {
 	return func(str string) error {
 		_, err := fmt.Fprintf(w, str)
@@ -43,7 +44,8 @@ func writeResponse(w http.ResponseWriter) func(string) error {
 	}
 }
 
-// callback factory
+// Error handler that writes the error to the http response!
+// (with the correct response writer closed in)
 func writeError(w http.ResponseWriter) func(error) error {
 	return func(err error) error {
 		fmt.Fprintf(w, err.Error())
@@ -51,6 +53,7 @@ func writeError(w http.ResponseWriter) func(error) error {
 	}
 }
 
+// Error handler that writes errors to stdout!
 func logError(err error) error {
 	fmt.Println(err.Error())
 	return err
@@ -80,8 +83,8 @@ func show(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	// pre-load the repo with items up to 100
-	for x := 0; x < 100; x++ {
+	// pre-load the repo with items up to 10
+	for x := 0; x < 10; x++ {
 		key := strconv.Itoa(x)
 		repo.Save(key, ent.Item{Title: fmt.Sprintf("Item %s", key)})
 	}
