@@ -1,8 +1,13 @@
 package main
 
-import "./repos"
-import "./ent"
-import "./io"
+import (
+	"fmt"
+	"net/http"
+	"strconv"
+
+	"./ent"
+	"./repos"
+)
 
 func panicErr(err error) error {
 	panic(err.Error())
@@ -20,34 +25,43 @@ func panicErr(err error) error {
 // handling the opening db error
 // until a page request, which is more
 // like what you see with Rails
-// for example.
+// for example, by simply deleting the
+// handle line here.
 var repo = repos.
-	OpenItemRepo()
+	OpenItemRepo().
+	Handle(panicErr)
+
+func writeResponse(w http.ResponseWriter) func(string) error {
+	return func(str string) error {
+		_, err := fmt.Fprintf(w, str)
+		return err
+	}
+}
+
+func writeError(w http.ResponseWriter) func(error) error {
+	return func(err error) error {
+		fmt.Fprintf(w, err.Error())
+		return err
+	}
+}
+
+func show(w http.ResponseWriter, r *http.Request) {
+	var key string
+	key = r.URL.Path[1:]
+
+	repo.
+		Get(key).
+		GetTitle().
+		Within(writeResponse(w)).
+		Handle(writeError(w))
+}
 
 func main() {
-	var i = ent.Item{
-		Title: "Hello",
+	for x := 0; x < 100; x++ {
+		key := strconv.Itoa(x)
+		repo.Save(key, ent.Item{Title: fmt.Sprintf("Item %s", key)})
 	}
 
-	repo.Save(1, i)
-
-	// Get item 1 and print out title
-	// ignores errors
-	repo.
-		Get(1).
-		GetTitle().
-		Within(io.PrintStr)
-
-	// Get item 100 and print out title
-	// print out any errors from anywhere
-	repo.
-		Get(100).
-		GetTitle().
-		Within(io.PrintStr).
-		// handler function is of type
-		// func(error) error.
-		// In a web handler, you'd
-		// write a handler function that
-		// returns 404 for example.
-		Handle(io.PrintErr)
+	http.HandleFunc("/", show)
+	http.ListenAndServe(":8080", nil)
 }

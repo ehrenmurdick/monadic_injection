@@ -4,21 +4,21 @@ import "../ent"
 import "errors"
 
 type ItemRepo interface {
-	Get(int) ent.MaybeItem
-	Save(int, ent.Item) ent.MaybeItem
+	Get(string) ent.MaybeItem
+	Save(string, ent.Item) ent.MaybeItem
 }
 
 func NewItemRepo() ItemRepo {
 	return itemRepo{
-		items: make(map[int]ent.Item),
+		items: make(map[string]ent.Item),
 	}
 }
 
 type itemRepo struct {
-	items map[int]ent.Item
+	items map[string]ent.Item
 }
 
-func (repo itemRepo) Get(key int) (out ent.MaybeItem) {
+func (repo itemRepo) Get(key string) (out ent.MaybeItem) {
 	if value, ok := repo.items[key]; ok {
 		out.Value = value
 	} else {
@@ -27,7 +27,7 @@ func (repo itemRepo) Get(key int) (out ent.MaybeItem) {
 	return
 }
 
-func (repo itemRepo) Save(key int, value ent.Item) (out ent.MaybeItem) {
+func (repo itemRepo) Save(key string, value ent.Item) (out ent.MaybeItem) {
 	out.Value = value
 	repo.items[key] = value
 	return

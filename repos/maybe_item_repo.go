@@ -18,13 +18,13 @@ func OpenItemRepo() (out MaybeItemRepo) {
 	return
 }
 
-func (in MaybeItemRepo) Get(key int) ent.MaybeItem {
+func (in MaybeItemRepo) Get(key string) ent.MaybeItem {
 	return in.AndThenItem(func(repo ItemRepo) ent.MaybeItem {
 		return repo.Get(key)
 	})
 }
 
-func (in MaybeItemRepo) Save(key int, item ent.Item) ent.MaybeItem {
+func (in MaybeItemRepo) Save(key string, item ent.Item) ent.MaybeItem {
 	return in.AndThenItem(func(repo ItemRepo) ent.MaybeItem {
 		return repo.Save(key, item)
 	})
