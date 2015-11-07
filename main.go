@@ -31,6 +31,16 @@ var repo = repos.
 	OpenItemRepo().
 	Handle(panicErr)
 
+// To see per-request error handling of a bad repo,
+// try swapping the above for this:
+// var repo = repos.
+// 	OpenBadItemRepo()
+
+// Note that it would need a little more love to
+// make the maybeRepo re-try getting a good repo
+// per request, like what you see with Rails
+
+// callback factory
 func writeResponse(w http.ResponseWriter) func(string) error {
 	return func(str string) error {
 		_, err := fmt.Fprintf(w, str)
@@ -38,6 +48,7 @@ func writeResponse(w http.ResponseWriter) func(string) error {
 	}
 }
 
+// callback factory
 func writeError(w http.ResponseWriter) func(error) error {
 	return func(err error) error {
 		fmt.Fprintf(w, err.Error())
@@ -45,18 +56,24 @@ func writeError(w http.ResponseWriter) func(error) error {
 	}
 }
 
+// GET /:key
+// renders item's title
 func show(w http.ResponseWriter, r *http.Request) {
 	var key string
 	key = r.URL.Path[1:]
 
 	repo.
 		Get(key).
+		// a trivial example. a more
+		// realistic handler could render
+		// an entity to json, for example.
 		GetTitle().
 		Within(writeResponse(w)).
 		Handle(writeError(w))
 }
 
 func main() {
+	// pre-load the repo with items up to 100
 	for x := 0; x < 100; x++ {
 		key := strconv.Itoa(x)
 		repo.Save(key, ent.Item{Title: fmt.Sprintf("Item %s", key)})
