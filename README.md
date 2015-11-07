@@ -2,4 +2,4 @@
 
 Tired of writing if err != nil freaking everywhere? Try monads!
 
-Start by looking at [main.go](blob/master/main.go)
+Start by looking at [main.go](main.go)
