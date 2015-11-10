@@ -1,0 +1,3 @@
+#!/bin/sh
+
+sed -e"s/TYPE/$1/g" $GOPATH/src/github.com/ehrenmurdick/monadic_injection/monads/result.go
