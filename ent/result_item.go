@@ -1,5 +1,8 @@
 package ent
 
+//go:generate ../monads/result result_item.go Item
+//go:generate ../monads/fmap result_item.go Item string
+// GENERATED
 type ResultItem struct {
 	Value Item
 	Err   error

@@ -30,3 +30,4 @@ func (m ResultTYPE) Handle(bl func(error) error) ResultTYPE {
 		return m
 	}
 }
+

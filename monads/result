@@ -1,6 +1,10 @@
 #!/bin/sh
 
+temp="/tmp/$(basename $0).$$.tmp"
+sed '/\/\/ GENERATED/q' $1 > $temp
+cp $temp $1
+
 sed \
-  -e"s/PACKAGE/$1/g" \
   -e"s/TYPE/$2/g" \
-  $GOPATH/src/github.com/ehrenmurdick/monadic_injection/monads/result.go.template
+  $GOPATH/src/github.com/ehrenmurdick/monadic_injection/monads/result.go.template\
+  >> $1
