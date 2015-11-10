@@ -1,5 +1,9 @@
 package ent
 
+func (i ResultItem) GetTitle() Resultstring {
+	return i.Fmapstring(Item.GetTitle)
+}
+
 //go:generate ../monads/result result_item.go Item
 //go:generate ../monads/fmap result_item.go Item string
 // GENERATED
@@ -8,13 +12,19 @@ type ResultItem struct {
 	Err   error
 }
 
+func EmptyResultItem(v Item) ResultItem {
+	return ResultItem{
+		Value: Item{},
+	}
+}
+
 func ReturnResultItem(v Item) ResultItem {
 	return ResultItem{
 		Value: v,
 	}
 }
 
-func (m ResultItem) Bind(bl func(Item) ResultItem) ResultItem {
+func (m ResultItem) Bind(bl func(Item) Item) ResultItem {
 	if m.Err != nil {
 		return ResultItem{
 			Err: m.Err,
@@ -36,14 +46,11 @@ func (m ResultItem) Handle(bl func(error) error) ResultItem {
 	}
 }
 
-func (m ResultItem) FmapString(bl func(Item) Resultstring) Resultstring {
+func (m ResultItem) Fmapstring(bl func(Item) (string, error)) (out Resultstring) {
 	if m.Err != nil {
-		return Resultstring{
-			Err: m.Err,
-		}
+			out.Err = m.Err
 	} else {
-		return Resultstring{
-			Value: bl(m.Value),
-		}
+		out.Value, out.Err = bl(m.Value)
 	}
+	return
 }

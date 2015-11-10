@@ -9,7 +9,7 @@ func ReturnResultTYPE(v TYPE) ResultTYPE {
 	}
 }
 
-func (m ResultTYPE) Bind(bl func(TYPE) ResultTYPE) ResultTYPE {
+func (m ResultTYPE) Bind(bl func(TYPE) TYPE) ResultTYPE {
 	if m.Err != nil {
 		return ResultTYPE{
 			Err: m.Err,

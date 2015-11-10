@@ -23,8 +23,7 @@ import (
 // for example, by simply deleting the
 // handle line here.
 var repo = repos.
-	OpenItemRepo().
-	Handle(panicErr)
+	ReturnResultItemRepo(repos.NewItemRepo())
 
 // To see per-request error handling of a bad repo,
 // try swapping the above for this:
@@ -37,10 +36,10 @@ var repo = repos.
 
 // "return" monad operation callback
 // (with the correct response writer closed in)
-func writeResponse(w http.ResponseWriter) func(string) error {
-	return func(str string) error {
-		_, err := fmt.Fprintf(w, str)
-		return err
+func writeResponse(w http.ResponseWriter) func(string) string {
+	return func(str string) string {
+		fmt.Fprintf(w, str)
+		return str
 	}
 }
 
@@ -77,7 +76,7 @@ func show(w http.ResponseWriter, r *http.Request) {
 		// realistic handler could render
 		// an entity to json, for example.
 		GetTitle().
-		Within(writeResponse(w)).
+		Bind(writeResponse(w)).
 		Handle(writeError(w)).
 		Handle(logError)
 }

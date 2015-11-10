@@ -4,8 +4,8 @@ import "github.com/ehrenmurdick/monadic_injection/ent"
 import "errors"
 
 type ItemRepo interface {
-	Get(string) ent.MaybeItem
-	Save(string, ent.Item) ent.MaybeItem
+	Get(string) (ent.Item, error)
+	Save(string, ent.Item) (ent.Item, error)
 }
 
 func NewItemRepo() ItemRepo {
@@ -18,17 +18,17 @@ type itemRepo struct {
 	items map[string]ent.Item
 }
 
-func (repo itemRepo) Get(key string) (out ent.MaybeItem) {
+func (repo itemRepo) Get(key string) (out ent.Item, err error) {
 	if value, ok := repo.items[key]; ok {
-		out.Value = value
+		out = value
 	} else {
-		out.Err = errors.New("Item not found")
+		err = errors.New("Item not found")
 	}
 	return
 }
 
-func (repo itemRepo) Save(key string, value ent.Item) (out ent.MaybeItem) {
-	out.Value = value
+func (repo itemRepo) Save(key string, value ent.Item) (out ent.Item, err error) {
+	out = value
 	repo.items[key] = value
 	return
 }
