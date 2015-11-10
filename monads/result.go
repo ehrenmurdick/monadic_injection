@@ -1,4 +1,4 @@
-package monads
+package PACKAGE
 
 type ResultTYPE struct {
 	Value TYPE
