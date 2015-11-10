@@ -12,12 +12,6 @@ type ResultItem struct {
 	Err   error
 }
 
-func EmptyResultItem(v Item) ResultItem {
-	return ResultItem{
-		Value: Item{},
-	}
-}
-
 func ReturnResultItem(v Item) ResultItem {
 	return ResultItem{
 		Value: v,
