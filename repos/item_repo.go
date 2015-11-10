@@ -1,6 +1,6 @@
 package repos
 
-import "../ent"
+import "github.com/ehrenmurdick/monadic_injection/ent"
 import "errors"
 
 type ItemRepo interface {

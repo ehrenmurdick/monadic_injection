@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"./ent"
-	"./repos"
+	"github.com/ehrenmurdick/monadic_injection/ent"
+	"github.com/ehrenmurdick/monadic_injection/repos"
 )
 
 // initialize a monadic repo.

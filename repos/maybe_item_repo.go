@@ -1,7 +1,7 @@
 package repos
 
 import "errors"
-import "../ent"
+import "github.com/ehrenmurdick/monadic_injection/ent"
 
 // This is the scary basement.
 // If we were in swift, all the Maybe* classes
