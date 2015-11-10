@@ -1,5 +1,6 @@
 package monads
 
-// +gen Item
 type Result struct {
+	Value string
+	Err   error
 }
