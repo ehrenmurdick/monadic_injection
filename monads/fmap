@@ -1,0 +1,6 @@
+#!/bin/sh
+
+sed \
+  -e"s/TYPE1/$1/g" \
+  -e"s/TYPE2/$2/g" \
+  $GOPATH/src/github.com/ehrenmurdick/monadic_injection/monads/fmap.go.template

@@ -1,6 +1,0 @@
-#!/bin/sh
-
-sed \
-  -e"s/TYPE/$2/g" \
-  -e"s/PACKAGE/$1/g" \
-  $GOPATH/src/github.com/ehrenmurdick/monadic_injection/monads/result.go

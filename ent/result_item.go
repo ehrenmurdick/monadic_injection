@@ -23,6 +23,16 @@ func (m ResultItem) Bind(bl func(Item) ResultItem) ResultItem {
 	}
 }
 
+func (m ResultItem) Handle(bl func(error) error) ResultItem {
+	if m.Err != nil {
+		return ResultItem{
+			Err: bl(m.Err),
+		}
+	} else {
+		return m
+	}
+}
+
 func (m ResultItem) FmapString(bl func(Item) Resultstring) Resultstring {
 	if m.Err != nil {
 		return Resultstring{
@@ -32,15 +42,5 @@ func (m ResultItem) FmapString(bl func(Item) Resultstring) Resultstring {
 		return Resultstring{
 			Value: bl(m.Value),
 		}
-	}
-}
-
-func (m ResultItem) Handle(bl func(error) error) ResultItem {
-	if m.Err != nil {
-		return ResultItem{
-			Err: bl(m.Err),
-		}
-	} else {
-		return m
 	}
 }

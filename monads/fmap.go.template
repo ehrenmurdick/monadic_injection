@@ -1,0 +1,11 @@
+func (m ResultTYPE1) FmapString(bl func(TYPE1) ResultTYPE2) ResultTYPE2 {
+	if m.Err != nil {
+		return ResultTYPE2{
+			Err: m.Err,
+		}
+	} else {
+		return ResultTYPE2{
+			Value: bl(m.Value),
+		}
+	}
+}

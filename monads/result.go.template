@@ -1,5 +1,3 @@
-package PACKAGE
-
 type ResultTYPE struct {
 	Value TYPE
 	Err   error
@@ -18,18 +16,6 @@ func (m ResultTYPE) Bind(bl func(TYPE) ResultTYPE) ResultTYPE {
 		}
 	} else {
 		return ResultTYPE{
-			Value: bl(m.Value),
-		}
-	}
-}
-
-func (m ResultTYPE) FmapString(bl func(TYPE) Resultstring) Resultstring {
-	if m.Err != nil {
-		return Resultstring{
-			Err: m.Err,
-		}
-	} else {
-		return Resultstring{
 			Value: bl(m.Value),
 		}
 	}
