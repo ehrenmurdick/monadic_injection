@@ -22,3 +22,25 @@ func (m ResultTYPE) Bind(bl func(TYPE) ResultTYPE) ResultTYPE {
 		}
 	}
 }
+
+func (m ResultTYPE) FmapString(bl func(TYPE) Resultstring) Resultstring {
+	if m.Err != nil {
+		return Resultstring{
+			Err: m.Err,
+		}
+	} else {
+		return Resultstring{
+			Value: bl(m.Value),
+		}
+	}
+}
+
+func (m ResultTYPE) Handle(bl func(error) error) ResultTYPE {
+	if m.Err != nil {
+		return ResultTYPE{
+			Err: bl(m.Err),
+		}
+	} else {
+		return m
+	}
+}
