@@ -9,33 +9,27 @@ import (
 	"github.com/ehrenmurdick/monadic_injection/repos"
 )
 
-// initialize a monadic repo.
-// failure to open can be handled
+// initialize a repo (wrapped in a Result).
+// Failure to open can be handled
 // here by adding:
 // .Handle(panicErr)
-// that would quit the
+// That would quit the
 // server if the db is configured
 // incorrectly, for example.
 // otherwise, you could defer
 // handling the opening db error
 // until a page request, which is more
 // like what you see with Rails
-// for example, by simply deleting the
-// handle line here.
+// for example. That's the behavior right now.
 var repo = repos.
 	ReturnResultItemRepo(repos.NewItemRepo())
 
-// To see per-request error handling of a bad repo,
-// try swapping the above for this:
-// var repo = repos.
-// 	OpenBadItemRepo()
-
 // Note that it would need a little more love to
-// make the maybeRepo re-try getting a good repo
+// make the resultRepo re-try getting a good repo
 // per request, like what you see with Rails
 
-// "return" monad operation callback
-// (with the correct response writer closed in)
+// function which returns a handler function with
+// the response writer curried in
 func writeResponse(w http.ResponseWriter) func(string) string {
 	return func(str string) string {
 		fmt.Fprintf(w, str)
@@ -43,8 +37,8 @@ func writeResponse(w http.ResponseWriter) func(string) string {
 	}
 }
 
-// Error handler that writes the error to the http response!
-// (with the correct response writer closed in)
+// function which returns a handler function with
+// the response writer curried in
 func writeError(w http.ResponseWriter) func(error) error {
 	return func(err error) error {
 		fmt.Fprintf(w, err.Error())
@@ -70,13 +64,25 @@ func show(w http.ResponseWriter, r *http.Request) {
 	var key string
 	key = r.URL.Path[1:]
 
+	// Each step in this chain returns another Result,
+	// with the right methods on it, regardless of
+	// whether the line failed or not. If a line fails,
+	// then subsequent lines do nothing but wait until a
+	// .Handle call
 	repo.
 		Get(key).
 		// a trivial example. a more
 		// realistic handler could render
 		// an entity to json, for example.
 		GetTitle().
+		// Bind means "get the wrapper value out if it's there
+		// and call this function. If the wrapped value is bad, ie there's
+		// and error, don't call this function and just return self.
 		Bind(writeResponse(w)).
+		// Handle is the same as Bind, but for the error value instead
+		// of the wrapped value. So it calls the the passed in
+		// function if there IS an error, and ignores the passed in function
+		// if there isn't.
 		Handle(writeError(w)).
 		Handle(logError)
 }
